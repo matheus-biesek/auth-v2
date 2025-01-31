@@ -1,7 +1,7 @@
 package com.mat.auth.adapters.rest;
 
 import com.mat.auth.adapters.rest.exception.ValidationErrorHandler;
-import com.mat.auth.domain.port.SecurityServicePort;
+import com.mat.auth.domain.port.in.SecurityServicePort;
 import com.mat.auth.domain.dto.request.LoginRequestDTO;
 import com.mat.auth.domain.dto.request.RegisterUserRequestDTO;
 import com.mat.auth.domain.dto.request.UpdateRoleRequestDTO;

@@ -1,6 +1,7 @@
-package com.mat.auth.adapters.services;
+package com.mat.auth.adapters.security;
 
 import com.mat.auth.adapters.persistence.UserRepositoryAdapter;
+import com.mat.auth.application.service.TokenServiceImpl;
 import com.mat.auth.domain.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

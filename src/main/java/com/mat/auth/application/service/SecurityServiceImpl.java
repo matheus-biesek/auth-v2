@@ -1,9 +1,9 @@
-package com.mat.auth.adapters.services;
+package com.mat.auth.application.service;
 
 import com.mat.auth.adapters.persistence.UserRepositoryAdapter;
 import com.mat.auth.domain.exceptions.UserAlreadyExistsException;
 import com.mat.auth.domain.exceptions.UserNotFoundException;
-import com.mat.auth.domain.port.SecurityServicePort;
+import com.mat.auth.domain.port.in.SecurityServicePort;
 import com.mat.auth.domain.enums.UserRole;
 import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;

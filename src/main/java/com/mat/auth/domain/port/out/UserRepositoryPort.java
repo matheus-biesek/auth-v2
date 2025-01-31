@@ -1,4 +1,4 @@
-package com.mat.auth.domain.port;
+package com.mat.auth.domain.port.out;
 
 import com.mat.auth.domain.model.User;
 

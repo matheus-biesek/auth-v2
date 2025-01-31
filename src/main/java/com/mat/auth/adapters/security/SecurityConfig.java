@@ -1,4 +1,4 @@
-package com.mat.auth.adapters.services;
+package com.mat.auth.adapters.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

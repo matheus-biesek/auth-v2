@@ -1,4 +1,4 @@
-package com.mat.auth.adapters.services;
+package com.mat.auth.application.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -6,7 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mat.auth.domain.port.TokenServicePort;
+import com.mat.auth.domain.port.in.TokenServicePort;
 import com.mat.auth.domain.enums.UserRole;
 import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.mat.auth.domain.port;
+package com.mat.auth.domain.port.in;
 
 import com.mat.auth.domain.enums.UserRole;
 

@@ -1,6 +1,6 @@
 package com.mat.auth.adapters.persistence;
 
-import com.mat.auth.domain.port.UserRepositoryPort;
+import com.mat.auth.domain.port.out.UserRepositoryPort;
 import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
