@@ -1,6 +1,7 @@
 package com.mat.auth.adapters.rest;
 
 import com.mat.auth.adapters.rest.exception.ValidationErrorHandler;
+import com.mat.auth.domain.dto.response.LoginResponseDTO;
 import com.mat.auth.domain.port.in.SecurityServicePort;
 import com.mat.auth.domain.dto.request.LoginRequestDTO;
 import com.mat.auth.domain.dto.request.RegisterUserRequestDTO;
@@ -24,20 +25,18 @@ public class SecurityController {
     private final SecurityServicePort securityService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO request, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorHandler.getErrorMessages(result));
-        }
-        return securityService.login(request.getUsername(), request.getPassword())
-                .<ResponseEntity<?>>map(token -> ResponseEntity.ok(new TokenResponseDTO(token)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuário ou senha inválidos!")));
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+        String token = securityService.login(request.getUsername(), request.getPassword());
+        return ResponseEntity.ok(new LoginResponseDTO("Login realizado com sucesso!", token));
     }
 
+
+
+
+
+
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserRequestDTO request, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorHandler.getErrorMessages(result));
-        }
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserRequestDTO request) {
         String token = securityService.registerUserWithRole(request.getUsername(), request.getPassword(), UserRole.USER);
         return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponseDTO(token));
     }
