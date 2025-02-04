@@ -2,10 +2,10 @@ package com.mat.auth.application.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mat.auth.adapters.rest.exception.TokenException;
 import com.mat.auth.domain.port.in.TokenServicePort;
 import com.mat.auth.domain.enums.UserRole;
 import com.mat.auth.domain.model.User;
@@ -31,16 +31,14 @@ public class TokenServiceImpl implements TokenServicePort {
     public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(this.secret);
-            String token = JWT.create()
+            return JWT.create()
                     .withIssuer("login-auth-ipa")
                     .withSubject(user.getUsername())
                     .withClaim("role", user.getRole().ordinal())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
-            logger.info("Token gerado para o usuário: {}", user.getUsername());
-            return token;
-        } catch (JWTCreationException exception) {
-            throw new RuntimeException("Erro ao autenticar usuário!", exception);
+        } catch (Exception e) {
+            throw new TokenException("Erro inesperado na geração do token", e);
         }
     }
 
@@ -49,8 +47,12 @@ public class TokenServiceImpl implements TokenServicePort {
         try {
             DecodedJWT decodedJWT = verifyToken(token);
             return decodedJWT.getSubject();
-        } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Token inválido ou expirado", exception);
+        } catch (TokenExpiredException e) {
+            throw new TokenException("Token expirado", e);
+        } catch (JWTVerificationException e) {
+            throw new TokenException("Token malformado ou inválido", e);
+        } catch (Exception e) {
+            throw new TokenException("Erro inesperado na validação do token", e);
         }
     }
 
@@ -59,26 +61,19 @@ public class TokenServiceImpl implements TokenServicePort {
         try {
             DecodedJWT decodedJWT = verifyToken(token);
             if (isTokenExpired(decodedJWT)) {
-                logger.info("Token expirado - {}", token);
-                return false;
+                throw new TokenException("Token expirado");
             }
 
             int roleClaim = decodedJWT.getClaim("role").asInt();
             if (roleClaim != role.ordinal()) {
-                logger.info("Papel do token inválido: {}", roleClaim);
-                return false;
+                throw new TokenException("Papel do token inválido");
             }
             return true;
 
-        } catch (TokenExpiredException e) {
-            logger.info("Token expirado: {}", e.getMessage());
-            return false;
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao validar token: {}", e.getMessage());
-            throw new RuntimeException("Token malformado ou inválido", e);
+            throw new TokenException("Token malformado ou inválido", e);
         } catch (Exception e) {
-            logger.error("Erro inesperado ao validar token: {}", e.getMessage());
-            throw new RuntimeException("Erro inesperado na validação do token", e);
+            throw new TokenException("Erro inesperado na validação do token", e);
         }
     }
 

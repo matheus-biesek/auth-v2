@@ -1,6 +1,7 @@
 package com.mat.auth.application.service;
 
 import com.mat.auth.adapters.persistence.UserRepositoryAdapter;
+import com.mat.auth.adapters.rest.exception.CustomAuthenticationException;
 import com.mat.auth.domain.exceptions.UserAlreadyExistsException;
 import com.mat.auth.domain.exceptions.UserNotFoundException;
 import com.mat.auth.domain.port.in.SecurityServicePort;
@@ -9,7 +10,6 @@ import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,16 +19,24 @@ public class SecurityServiceImpl implements SecurityServicePort {
     private final PasswordEncoder passwordEncoder;
     private final TokenServiceImpl tokenServiceImpl;
 
-    @Override
-    public Optional<String> login(String username, String password) {
-        return userRepositoryAdapter.findByUsername(username)
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
-                .map(tokenServiceImpl::generateToken);
+    public String login(String username, String password) {
+        User user = userRepositoryAdapter.findByUsername(username)
+                .orElseThrow(() -> new CustomAuthenticationException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomAuthenticationException("Senha inválida");
+        }
+
+        return tokenServiceImpl.generateToken(user);
     }
+
+
+
 
     @Override
     public String registerUserWithRole(String username, String password, UserRole role) {
         if (userRepositoryAdapter.findByUsername(username).isPresent()) {
+            // criar console global
             throw new UserAlreadyExistsException("O usuário já existe!");
         }
         User newUser = new User(passwordEncoder.encode(password), username, role);
