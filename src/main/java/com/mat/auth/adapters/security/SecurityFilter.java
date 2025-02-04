@@ -21,7 +21,6 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
-
     private final TokenServiceImpl tokenServiceImpl;
     private final UserRepositoryAdapter userRepositoryAdapter;
 
@@ -42,7 +41,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     private String recoverToken(HttpServletRequest request){
         var authHeader = request.getHeader("Authorization");
         if(authHeader == null) {
-            logger.info("Authorization do header está vazio!");
             return null;
         }
         return authHeader.replace("Bearer ", "");
