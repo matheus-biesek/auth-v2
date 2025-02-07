@@ -11,6 +11,7 @@ import com.mat.auth.domain.enums.UserRole;
 import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class TokenServiceImpl implements TokenServicePort {
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
         } catch (Exception e) {
-            throw new TokenException("Erro inesperado na geração do token", e);
+            throw new TokenException("Erro inesperado ao gerar token.", e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -48,11 +49,11 @@ public class TokenServiceImpl implements TokenServicePort {
             DecodedJWT decodedJWT = verifyToken(token);
             return decodedJWT.getSubject();
         } catch (TokenExpiredException e) {
-            throw new TokenException("Token expirado", e);
+            throw new TokenException("Token expirado", e, HttpStatus.UNAUTHORIZED);
         } catch (JWTVerificationException e) {
-            throw new TokenException("Token malformado ou inválido", e);
+            throw new TokenException("Token malformado ou inválido", e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            throw new TokenException("Erro inesperado na validação do token", e);
+            throw new TokenException("Erro inesperado ao validar o token", e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -60,39 +61,52 @@ public class TokenServiceImpl implements TokenServicePort {
     public boolean validateTokenForRole(String token, UserRole role) {
         try {
             DecodedJWT decodedJWT = verifyToken(token);
+
             if (isTokenExpired(decodedJWT)) {
-                throw new TokenException("Token expirado");
+                throw new TokenException("Token expirado", HttpStatus.UNAUTHORIZED);
             }
 
             int roleClaim = decodedJWT.getClaim("role").asInt();
             if (roleClaim != role.ordinal()) {
-                throw new TokenException("Papel do token inválido");
+                throw new TokenException("Papel do token inválido", HttpStatus.FORBIDDEN);
             }
-            return true;
 
+            return true;
         } catch (JWTVerificationException e) {
-            throw new TokenException("Token malformado ou inválido", e);
+            throw new TokenException("Token malformado ou inválido", e, HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            throw new TokenException("Erro inesperado na validação do token", e);
+            throw new TokenException("Erro inesperado ao validar do token pela role", e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private DecodedJWT verifyToken(String token) throws JWTVerificationException {
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-        return JWT.require(algorithm)
-                .withIssuer("login-auth-ipa")
-                .build()
-                .verify(token);
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.require(algorithm)
+                    .withIssuer("login-auth-ipa")
+                    .build()
+                    .verify(token);
+        } catch (Exception e){
+            throw new TokenException("Erro inesperado ao verificar token",e ,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private boolean isTokenExpired(DecodedJWT decodedJWT) {
-        Date expiration = decodedJWT.getExpiresAt();
-        return expiration != null && expiration.before(new Date());
+        try {
+            Date expiration = decodedJWT.getExpiresAt();
+            return expiration != null && expiration.before(new Date());
+        } catch (Exception e) {
+            throw new TokenException("Erro inesperado ao confirma se o token foi expirado",e ,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private Instant generateExpirationDate() {
-        return LocalDateTime.now()
-                .plusHours(3)
-                .toInstant(ZoneOffset.of("-03:00"));
+        try {
+            return LocalDateTime.now()
+                    .plusHours(3)
+                    .toInstant(ZoneOffset.of("-03:00"));
+        } catch (Exception e){
+            throw new TokenException("Erro inesperado ao gerar data de expiração",e ,HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
