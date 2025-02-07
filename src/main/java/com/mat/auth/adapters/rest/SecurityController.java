@@ -1,6 +1,5 @@
 package com.mat.auth.adapters.rest;
 
-import com.mat.auth.adapters.rest.exception.ValidationErrorHandler;
 import com.mat.auth.domain.dto.response.LoginResponseDTO;
 import com.mat.auth.domain.port.in.SecurityServicePort;
 import com.mat.auth.domain.dto.request.LoginRequestDTO;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,8 +24,7 @@ public class SecurityController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-        String token = securityService.login(request.getUsername(), request.getPassword());
-        return ResponseEntity.ok(new LoginResponseDTO("Login realizado com sucesso!", token));
+        return ResponseEntity.ok(securityService.login(request.getUsername(), request.getPassword()));
     }
 
 
@@ -42,19 +39,13 @@ public class SecurityController {
     }
 
     @PatchMapping("/update-role")
-    public ResponseEntity<?> updateRole(@Valid @RequestBody UpdateRoleRequestDTO request, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorHandler.getErrorMessages(result));
-        }
+    public ResponseEntity<?> updateRole(@Valid @RequestBody UpdateRoleRequestDTO request) {
         securityService.updateRoleUser(request.getUsername(), request.getRole());
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@Valid @RequestBody UsernameRequestDTO request, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorHandler.getErrorMessages(result));
-        }
+    public ResponseEntity<?> deleteUser(@Valid @RequestBody UsernameRequestDTO request) {
         securityService.deleteUser(request.getUsername());
         return ResponseEntity.noContent().build();
     }
