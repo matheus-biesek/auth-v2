@@ -1,13 +1,15 @@
 package com.mat.auth.application.service;
 
 import com.mat.auth.adapters.persistence.UserRepositoryAdapter;
-import com.mat.auth.adapters.rest.exception.CustomAuthenticationException;
+import com.mat.auth.adapters.rest.exception.LoginException;
+import com.mat.auth.domain.dto.response.LoginResponseDTO;
 import com.mat.auth.domain.exceptions.UserAlreadyExistsException;
 import com.mat.auth.domain.exceptions.UserNotFoundException;
 import com.mat.auth.domain.port.in.SecurityServicePort;
 import com.mat.auth.domain.enums.UserRole;
 import com.mat.auth.domain.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +21,22 @@ public class SecurityServiceImpl implements SecurityServicePort {
     private final PasswordEncoder passwordEncoder;
     private final TokenServiceImpl tokenServiceImpl;
 
-    public String login(String username, String password) {
-        User user = userRepositoryAdapter.findByUsername(username)
-                .orElseThrow(() -> new CustomAuthenticationException("Usuário não encontrado"));
+    private User findUserByUsername(String username, RuntimeException exception) {
+        return userRepositoryAdapter.findByUsername(username)
+                .orElseThrow(() -> exception);
+    }
+
+    public LoginResponseDTO login(String username, String password) {
+        User user = findUserByUsername(username, new LoginException("Usuário não encontrado", HttpStatus.UNAUTHORIZED));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new CustomAuthenticationException("Senha inválida");
+            throw new LoginException("Senha inválida", HttpStatus.UNAUTHORIZED);
         }
 
-        return tokenServiceImpl.generateToken(user);
+        String token = tokenServiceImpl.generateToken(user);
+        return new LoginResponseDTO(token);
     }
+
 
 
 
