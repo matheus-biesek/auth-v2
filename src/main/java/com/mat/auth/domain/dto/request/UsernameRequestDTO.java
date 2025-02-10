@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 public class UsernameRequestDTO {
 
     @NotBlank(message = "O nome de usuário não pode ser nulo, vazio ou em branco!")

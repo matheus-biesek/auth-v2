@@ -5,13 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class TokenValidationRequestDTO  {
     private String token;
     private UserRole role;
-
-    public TokenValidationRequestDTO(String token, UserRole role) {
-        this.token = token;
-        this.role = role;
-    }
 }
