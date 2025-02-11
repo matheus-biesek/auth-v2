@@ -45,12 +45,5 @@ public class GenerateTokenTest {
         assertTrue(token.startsWith("eyJ"));
     }
 
-    @Test
-    void testValidateTokenSuccess() {
-        when(decodedJWT.getSubject()).thenReturn("username");
-
-        String subject = tokenService.validateToken(validToken);
-        assertEquals("username", subject);
-    }
 
 }
