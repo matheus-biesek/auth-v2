@@ -27,10 +27,6 @@ public class TokenServiceImpl implements TokenServicePort {
 
     @Override
     public String generateToken(User user) {
-        if (user == null || user.getUsername() == null || user.getRole() == null) {
-            throw new TokenException("Usuário ou dados inválidos", HttpStatus.BAD_REQUEST);
-        }
-
         Algorithm algorithm = Algorithm.HMAC256(this.secret);
         return JWT.create()
                 .withIssuer("login-auth-api")
