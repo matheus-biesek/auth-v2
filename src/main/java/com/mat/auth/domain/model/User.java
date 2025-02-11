@@ -2,10 +2,7 @@ package com.mat.auth.domain.model;
 
 import com.mat.auth.domain.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,20 +15,28 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NonNull
     @Column(nullable = false)
     private String password;
 
+    @NonNull
     @Column(unique = true, nullable = false)
     private String username;
 
+    @NonNull
     @Column(nullable = false)
     private UserRole role;
+
+    public User(@NonNull String username, @NonNull UserRole userRole) {
+        this.username = username;
+        this.role = userRole;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -43,11 +48,5 @@ public class User implements UserDetails {
         } else {
             return List.of(new SimpleGrantedAuthority("ROLE_USER"));
         }
-    }
-
-    public User(String password, String username, UserRole role){
-        this.password = password;
-        this.username = username;
-        this.role = role;
     }
 }
