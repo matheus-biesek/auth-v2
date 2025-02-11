@@ -55,13 +55,13 @@ public class GlobalExceptionHandler {
     // TOKEN
     @ExceptionHandler(TokenException.class)
     public ResponseEntity<ErrorResponseDTO> handleTokenException(TokenException ex) {
-        logger.error("Ocorreu um erro ao precessar token: {}", ex.getMessage(), ex);
+        logger.error("Ocorreu um erro no TokenService: {}", ex.getMessage(), ex);
 
         return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()), ex.getHttpStatus());
     }
     @ExceptionHandler(JWTCreationException.class)
     public ResponseEntity<ErrorResponseDTO> handleJWTCreationException(JWTCreationException ex) {
-        logger.error("Erro ao criar JWT: {}", ex.getMessage(), ex);
+        logger.error("Erro ao criar JWT no TokenService: {}", ex.getMessage(), ex);
 
         return new ResponseEntity<>(new ErrorResponseDTO("Erro ao gerar token de autenticação. Tente novamente."), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<ErrorResponseDTO> handleLRegisterUserWithRoleException(SecurityException ex) {
-        logger.error("Ocorreu um erro de autentificação: {}", ex.getMessage(), ex);
+        logger.error("Ocorreu um erro do SecurityService: {}", ex.getMessage(), ex);
 
         return new ResponseEntity<>(new ErrorResponseDTO(ex.getMessage()), ex.getHttpStatus());
     }
