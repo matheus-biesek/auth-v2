@@ -42,6 +42,22 @@ public class TokenServiceImpl implements TokenServicePort {
         return decodedJWT.getSubject();
     }
 
+    private DecodedJWT verifyToken(String token) throws JWTVerificationException {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.require(algorithm)
+                    .withIssuer("login-auth-api")
+                    .build()
+                    .verify(token);
+        } catch (TokenExpiredException e) {
+            throw new TokenException("Token expirado.", e, HttpStatus.UNAUTHORIZED);
+        } catch (JWTVerificationException e) {
+            throw new TokenException("Token malformado ou inválido.", e, HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            throw new TokenException("Erro inesperado ao verificar o token.", e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Override
     public boolean validateTokenForRole(String token, UserRole role) {
 
@@ -60,22 +76,6 @@ public class TokenServiceImpl implements TokenServicePort {
         }
 
         return true;
-    }
-
-    private DecodedJWT verifyToken(String token) throws JWTVerificationException {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.require(algorithm)
-                    .withIssuer("login-auth-api")
-                    .build()
-                    .verify(token);
-        } catch (TokenExpiredException e) {
-            throw new TokenException("Token expirado.", e, HttpStatus.UNAUTHORIZED);
-        } catch (JWTVerificationException e) {
-            throw new TokenException("Token malformado ou inválido.", e, HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            throw new TokenException("Erro inesperado ao verificar o token.", e, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     private Instant generateExpirationDate() {
